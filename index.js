@@ -3,13 +3,20 @@
 var express = require('express');
 var app = express();
 var mongodb = require('mongodb');
+const bodyParser = require('body-parser');
 var urlmongo = 'mongodb://localhost:27017/parc';
 var MongoClient = require('mongodb').MongoClient;
-// variable pour ajouter utilisateurs 
+// variable pour utilisateurs 
 var tab = [];
+
 app.use(express.static("static"));
 // set the view engine to ejs
 app.set('view engine', 'ejs');
+
+
+app.use(bodyParser.urlencoded({
+    extended: false
+}));
 
 // use res.render to load up an ejs view file
 
@@ -40,35 +47,35 @@ app.get('/users', function (req, res) {
 });
 
 
-// // ajouter utilsateurs
-// app.post('/add', function (req, res) {
-//     const nom = req.body.nom;
-//     const prenom = req.body.prenom;
-//     MongoClient.connect(urlmongo, function (err, database) {
-//       var mydoc = {
-//         nom: nom,
-//         prenom: prenom
-//       };
-//       database.db("parc").collection("utilisateurs").insertOne(mydoc, function (err, res) {
-//         if (err) throw err;
-//         console.log("1 document ajouté");
-//         database.close();
-//       });
-//       res.end("Doc inséré");
-//     });
-// });
+// ajouter utilsateurs
+app.post('/add', function (req, res) {
+    const nom = req.body.nom;
+    const prenom = req.body.prenom;
+    MongoClient.connect(urlmongo, function (err, database) {
+      var add = {
+        nom: nom,
+        prenom: prenom
+      };
+      database.db("parc").collection("utilisateurs").insertOne(add, function (err, res) {
+        if (err) throw err;
+        console.log("1 document ajouté");
+        database.close();
+      });
+      res.end("Doc inséré");
+    });
+});
 
 
-// // affichage apres entré du formulaire
-// app.get('/users',  function(req, res) {
-//     var MongoClient = require('mongodb').MongoClient;
-//     var dbo = db.db("parc");
-//     MongoClient.then(urlmongo,function(err, db) {
-//         dbo.collection('utilisateurs').find({}).toArray().then(function(forms) {
-//             res.status(200).json(forms);
-//         });
-//     });
-// });
+// affichage apres entré du formulaire
+app.get('/users',  function(req, res) {
+    var MongoClient = require('mongodb').MongoClient;
+    var dbo = db.db("parc");
+    MongoClient.then(urlmongo,function(err, db) {
+        dbo.collection('utilisateurs').find({}).toArray().then(function(forms) {
+            res.status(200).json(forms);
+        });
+    });
+});
 
 // route vers page machines
 app.get('/liste_machines', function (req, res) {
